@@ -1,0 +1,10 @@
+
+version 2: released 11/15
+ - added CHANGELOG
+ - writeup: changed point allocations
+ - writeup: corrected due date
+ - writeup: added instructions section to design document
+
+version 1: released 11/14
+ - initial revision
+
