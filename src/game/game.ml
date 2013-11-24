@@ -3,16 +3,14 @@ open Constants
 open Util
 
 (* TODO: change this *)
-type game = int ref
+type ticks = int ref
+type game = ticks
 
-let init_game () : game =
-  failwith "U.N. Owen wasn't her"
+let init_game () : game = ref 1
 
-let handle_time game =
-  failwith "Charisma BREAK"
+let handle_time game = (game, Unfinished)
 
-let handle_action game col act =
-  failwith "A myon sort of day"
+let handle_action game col act = game
 
 let get_data game =
   failwith "I'm the strongest!"

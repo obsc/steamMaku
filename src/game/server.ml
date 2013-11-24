@@ -31,7 +31,9 @@ let handle_error_signal code =
     " (probably broken pipe from GUI crash)")
 
 let startGameServer port guiPort =
-  Sys.set_signal Sys.sigpipe (Sys.Signal_handle handle_error_signal);
+  let () = try
+    Sys.set_signal Sys.sigpipe (Sys.Signal_handle handle_error_signal)
+    with Invalid_argument (_) -> () in
   print_endline "Starting game.";
   let _ = Netgraphics.init guiPort in
   let numConnections = 100 in

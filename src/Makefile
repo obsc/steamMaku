@@ -55,9 +55,10 @@ team/babybot.exe:         \
 	team/team.cmo     \
 	team/babybot.cmo
 
-game/game.exe:               \
+game/game.exe:           \
 	shared/shared.cma    \
 	game/netgraphics.cmo \
+	game/abstraction.cmo \
 	game/game.cmo        \
 	game/server.cmo
 
