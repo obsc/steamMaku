@@ -17,7 +17,7 @@ module type TeamType = sig
 end
 
 module Team : TeamType = struct
-  type t = team_data ref * (direction * direction) list
+  type t = team_data ref * ((direction * direction) list ref)
   type cons = color
 
   let get_start_loc (c : color) : position =
@@ -26,7 +26,7 @@ module Team : TeamType = struct
   let create (c : cons) : t =
     let loc : position = get_start_loc c in
     let p : player_char = { p_id = next_available_id ();
-                            p_pos = get_start_loc c;
+                            p_pos = loc;
                             p_focused = false;
                             p_radius = cHITBOX_RADIUS;
                             p_color = c } in
