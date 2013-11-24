@@ -3,9 +3,6 @@ open Definitions
 open Util
 
 module type Collider = sig
-  type t
-  type out
-
   val collideRed : color -> bool
   val collideBlue : color -> bool
   (* val collideNpc : color -> bool *)
@@ -13,31 +10,44 @@ module type Collider = sig
   val pEvent : color -> Player.t -> unit
   (* val npcEvent : color -> Npc.t -> unit *)
 
-  val toData : t -> out
+  val spawn : Player.t -> bullet_type -> acceleration
+              -> position -> bullet list -> unit
 end
 
 module type MakeType = functor (C : Collider) -> sig
-  type t = C.t
+  type t
   type cons = Player.t * Player.t(*  * Npc.t *)
 
   val create : cons -> t
-  val update : t -> unit
+  val spawn : t -> Player.t -> bullet_type -> acceleration -> position -> unit
 
+  val update : t -> unit
   val collideAll : t -> unit
-  val getData : t -> C.out
+
+  val getData : t -> bullet list
 end
 
 module Make : MakeType = functor (C : Collider) -> struct
-  type t = C.t
+  type t = bullet list ref * Player.t * Player.t(*  * Npc.t *)
   type cons = Player.t * Player.t(*  * Npc.t *)
 
   let is_collide (p1, r1 : hitbox) (p2, r2 : hitbox) : bool =
     distance p1 p2 < r1 +. r2
 
-  let create (red, blue : cons) : t = failwith "todo"
-  let update (x : t) : unit = failwith "todo"
+  let update_pos (x : bullet) : bullet = 
+    {x with b_pos = add_v x.b_pos x.b_vel;
+            b_vel = add_v x.b_vel x.b_accel }
 
-  let collideAll (x : t) : unit = failwith "todo"
+  let create (red, blue : cons) : t = (ref [], red, blue)
+  let spawn (x : t) player b_type accel pos : unit =
+    match x with (b_lst, r, b) ->
+    C.spawn player b_type accel pos !b_lst
 
-  let getData (x : t) : C.out = failwith "todo"
+  let update (x : t) : unit =
+    match x with (b_lst, r, b) ->
+    b_lst := (List.rev_map update_pos !b_lst)
+  let collideAll (x : t) : unit = ()
+
+  let getData (x : t) : bullet list =
+    match x with (b_lst, r, b) -> !b_lst
 end
