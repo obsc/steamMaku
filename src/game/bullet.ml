@@ -8,7 +8,12 @@ module Bullet : Collider = struct
   let collide (p_col : color) (b_col : color) : bool = p_col <> b_col
   let graze (p_col : color) (b_col : color) : bool = p_col <> b_col
 
-  let playerEvent (p : Player.t) : bool = Player.hit p
+  let playerEvent (clear : unit -> unit) p enemy : bool =
+    let event () : unit =
+      clear ();
+      Player.killedOther enemy in
+    Player.hit event p
+
   let grazeEvent (p : Player.t) : bool = Player.graze p
 
   let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) : bullet list =

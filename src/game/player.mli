@@ -14,8 +14,11 @@ val updateCharge : t -> unit
 val reduceCharge : t -> int -> bool
 
 (* Called when player is hit or is grazing, returns true if deleting bullet *)
-val hit : t -> bool
+val hit : (unit -> unit) -> t -> bool
 val graze : t -> bool
+
+(* Killed other player *)
+val killedOther : t -> unit
 
 (* Gets the state of the player *)
 val getHitbox : t -> hitbox

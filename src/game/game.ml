@@ -43,6 +43,7 @@ let handle_time game =
   Bullet.collideAll game.bullets;
   Player.updateCharge game.red;
   Player.updateCharge game.blue;
+  Bullet.updateClear game.bullets;
   (game, get_result game)
 
 let handle_action game col act =
