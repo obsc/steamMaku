@@ -13,7 +13,7 @@ let getSpeed (f : bool) : float =
   if f then (float_of_int cFOCUSED_SPEED) else (float_of_int cUNFOCUSED_SPEED)
 
 (* Gets the starting position of a player *)
-let get_start_pos (c : color) : position =
+let getStartPos (c : color) : position =
   let m : float = match c with
     | Red  -> 0.125
     | Blue -> 0.875 in
@@ -41,7 +41,7 @@ let setFocus (x : t) (b : bool) : unit =
 (* Instantiates a player *)
 let create (c : color) : t =
   let id : id = next_available_id () in
-  let pos : position = get_start_pos c in
+  let pos : position = getStartPos c in
   let p : player_char = { p_id = id;
                           p_pos = pos;
                           p_focused = false;
@@ -84,6 +84,16 @@ let reduceCharge (x : t) (cost : int) : bool =
     t := (l, b, s, p, c - cost, player); true
   end else false
 
+let hit (x : t) : bool =
+  true
+
+let graze (x : t) : bool =
+  match x with (t, m, f) ->
+  match !t with (l, b, s, p, c, player) ->
+  add_update (SetScore (player.p_color, s + cGRAZE_POINTS));
+  t := (l, b, s + cGRAZE_POINTS, p, c, player);
+  false
+
 let getPlayer (x : t) : player_char =
   match x with (t, m, f) ->
   match !t with (l, b, s, p, c, player) ->
@@ -91,6 +101,9 @@ let getPlayer (x : t) : player_char =
 
 let getHitbox (x : t) : hitbox =
   let p = getPlayer x in (p.p_pos, float_of_int p.p_radius)
+
+let getGrazebox (x : t) : hitbox =
+  let p = getPlayer x in (p.p_pos, float_of_int cGRAZE_RADIUS)
 
 let getPos (x : t) : position =
   let p = getPlayer x in p.p_pos
@@ -102,6 +115,11 @@ let getScore (x : t) : int =
   match x with (t, m, f) ->
   match !t with (l, b, s, p, c, player) ->
   s
+
+let dead (x : t) : bool =
+  match x with (t, m, f) ->
+  match !t with (l, b, s, p, c, player) ->
+  l <= 0
 
 (* Returns team data of the player *)
 let getData (x : t) : team_data =

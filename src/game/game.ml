@@ -19,28 +19,31 @@ let init_game () : game =
     blue = blue;
     bullets = Bullet.create (red, blue) }
 
-let get_result game =
-  let rScore : int = Player.getScore game.red in
-  let bScore : int = Player.getScore game.blue in
-  if rScore > bScore then Winner Red
-  else if rScore = bScore then Tie
-  else Winner Blue
+let time_up game : bool =
+  (float_of_int !(game.t)) *. cUPDATE_TIME >= cTIME_LIMIT
+
+let get_result game : result =
+  if (Player.dead game.red) && not (Player.dead game.blue) then Winner Blue
+  else if (Player.dead game.blue) && not (Player.dead game.red) then Winner Blue
+  else if time_up game || ((Player.dead game.red) && (Player.dead game.blue))
+    then begin
+      let rScore : int = Player.getScore game.red in
+      let bScore : int = Player.getScore game.blue in
+      if rScore > bScore then Winner Red
+      else if rScore = bScore then Tie
+      else Winner Blue
+    end
+  else Unfinished
 
 let handle_time game =
-  if (float_of_int !(game.t)) *. cUPDATE_TIME >= cTIME_LIMIT then begin
-    let res : result = get_result game in
-    add_update (GameOver res);
-    (game, get_result game)
-  end
-  else begin
-    incr game.t;
-    Bullet.update game.bullets;
-    Player.update game.red;
-    Player.update game.blue;
-    Player.updateCharge game.red;
-    Player.updateCharge game.blue;
-    (game, Unfinished)
-  end
+  incr game.t;
+  Bullet.update game.bullets;
+  Player.update game.red;
+  Player.update game.blue;
+  Bullet.collideAll game.bullets;
+  Player.updateCharge game.red;
+  Player.updateCharge game.blue;
+  (game, get_result game)
 
 let handle_action game col act =
   let p : Player.t = match col with

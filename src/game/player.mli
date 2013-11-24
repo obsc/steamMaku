@@ -13,11 +13,19 @@ val updateCharge : t -> unit
 (* Reduces the amount of charge that a player has *)
 val reduceCharge : t -> int -> bool
 
+(* Called when player is hit or is grazing, returns true if deleting bullet *)
+val hit : t -> bool
+val graze : t -> bool
+
 (* Gets the state of the player *)
 val getHitbox : t -> hitbox
+val getGrazebox : t -> hitbox
 val getPos : t -> position
 val getColor : t -> color
 val getScore : t -> int
+
+(* Gets if the player is dead *)
+val dead : t -> bool
 
 (* Returns team data *)
 val getData : t -> team_data

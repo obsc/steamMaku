@@ -5,10 +5,11 @@ open Projectile
 open Player
 
 module Bullet : Collider = struct
-  let collideRed (c : color) : bool = c = Blue
-  let collideBlue (c : color) : bool = c = Red
+  let collide (p_col : color) (b_col : color) : bool = p_col <> b_col
+  let graze (p_col : color) (b_col : color) : bool = p_col <> b_col
 
-  let pEvent (c : color) (p : Player.t) : unit = ()
+  let playerEvent (p : Player.t) : bool = Player.hit p
+  let grazeEvent (p : Player.t) : bool = Player.graze p
 
   let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) : bullet list =
     let speed = float_of_int (speed_of_bullet n) in
