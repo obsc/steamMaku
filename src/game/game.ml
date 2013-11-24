@@ -2,7 +2,6 @@ open Definitions
 open Constants
 open Util
 
-(* TODO: change this *)
 type ticks = int ref
 type game = {
   t : ticks;

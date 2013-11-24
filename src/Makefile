@@ -58,8 +58,10 @@ team/babybot.exe:         \
 game/game.exe:           \
 	shared/shared.cma    \
 	game/netgraphics.cmo \
-	game/abstraction.cmo \
+	game/gameutil.cmo    \
 	game/player.cmo      \
+	game/projectile.cmo  \
+	game/bullet.cmo      \
 	game/game.cmo        \
 	game/server.cmo
 
