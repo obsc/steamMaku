@@ -28,7 +28,7 @@ module Bullet : Collider = struct
               	[b]
 
   	| Spread -> 
-  		let angle_increment = deg_to_rad (1. /. float_of_int cSPREAD_NUM) in
+  		let angle_increment = rad_to_deg (360. /. float_of_int cSPREAD_NUM) in
   		let rec num_to_spread acc i angle = 
   			if i = 0 then acc
   			else 
@@ -48,8 +48,8 @@ module Bullet : Collider = struct
   			if i = -1 then acc
   			else 
   				let angle = if i = 0 then 0.
-  										else if i = 1 then deg_to_rad (float_of_int cTRAIL_ANGLE)
-  										else deg_to_rad (float_of_int (~- cTRAIL_ANGLE)) in
+  										else if i = 1 then rad_to_deg (float_of_int cTRAIL_ANGLE)
+  										else rad_to_deg (float_of_int (~- cTRAIL_ANGLE)) in
   				let b : bullet = {
        	  	b_type = Trail;
   					b_id = next_available_id ();	
