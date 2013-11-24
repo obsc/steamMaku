@@ -34,13 +34,8 @@ let get_behavior (n : npctype) : (behavior * position) =
       (* update position *)
       dest := (Random.float f_width, Random.float f_height);
       (* update ufo velocity *) 
-      u := {
-        u_id = (!u).u_id;
-        u_pos = n_pos;
-        u_vel = scale f_speed !dest;
-        u_radius = cUFO_RADIUS;
-        u_red_hits = (!u).u_red_hits;
-        u_blue_hits = (!u).u_blue_hits; 
+      u := { !u with u_pos = n_pos;
+        u_vel = scale f_speed (unit_v !dest)
       } in
     (simple, a)
 
@@ -56,7 +51,7 @@ let spawn (n : npctype) (x : t) : unit =
               let u : ufo = {
                 u_id = id;
                 u_pos = pos;
-                u_vel = scale f_speed dest;
+                u_vel = scale f_speed (unit_v dest);
                 u_radius = cUFO_RADIUS;
                 u_red_hits = 0;
                 u_blue_hits = 0 } in
