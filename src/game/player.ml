@@ -65,8 +65,7 @@ let update (x : t) : unit =
     | h::t -> vector_of_dirs h (getSpeed !f) in
   let pos : position = moveOff player.p_pos off in
   let new_player : player_char = 
-    { player with p_pos = pos;
-                  p_focused = !f } in
+    { player with p_pos = pos; p_focused = !f } in
   add_update (MovePlayer (player.p_id, pos));
   t := (l, b, s, p, c, new_player)
 

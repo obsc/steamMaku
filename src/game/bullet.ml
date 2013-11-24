@@ -4,18 +4,11 @@ open Util
 open Projectile
 open Player
 
-module type BulletType = sig
-  include Collider with type out = bullet list
-end
-
-module Bullet : BulletType = struct
-  type t = int
-  type out = bullet list 
-
+module Bullet : Collider = struct
   let collideRed (c : color) : bool = c = Blue
   let collideBlue (c : color) : bool = c = Red
 
-  let pEvent (c : color) (p : Player.t) : unit = failwith "hi"
+  let pEvent (c : color) (p : Player.t) : unit = ()
 
 	let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) (x : bullet list) : bullet list =
 		let speed = float_of_int (speed_of_bullet n) in
@@ -73,8 +66,6 @@ module Bullet : BulletType = struct
   				num_to_trail (speed_trail@acc) (i-1) in
 		  num_to_trail [] cTRAIL_NUM 
   	| Power  -> x
-
-  let toData (x : t) : bullet list = []
 end
 
 include Make (Bullet)
