@@ -59,6 +59,7 @@ game/game.exe:           \
 	shared/shared.cma    \
 	game/netgraphics.cmo \
 	game/abstraction.cmo \
+	game/player.cmo      \
 	game/game.cmo        \
 	game/server.cmo
 
