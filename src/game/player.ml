@@ -77,6 +77,13 @@ let updateCharge (x : t) : unit =
   add_update (SetCharge (player.p_color, charge));
   t := (l, b, s, p, charge, player)
 
+let reduceCharge (x : t) (cost : int) : bool =
+  match x with (t, m, f) ->
+  match !t with (l, b, s, p, c, player) ->
+  if c >= cost then begin
+    t := (l, b, s, p, c - cost, player); true
+  end else false
+
 let getPlayer (x : t) : player_char =
   match x with (t, m, f) ->
   match !t with (l, b, s, p, c, player) ->

@@ -52,9 +52,11 @@ module Make : MakeType = functor (C : Collider) -> struct
 
   let create (red, blue : cons) : t = (ref [], red, blue)
   let spawn (x : t) player b_type accel pos : unit =
-    let new_b : bullet list = C.spawn player b_type accel pos in
-    match x with (b_lst, r, b) ->
-    b_lst := (List.fold_left add_bullet !b_lst new_b)
+    if Player.reduceCharge player (cost_of_bullet b_type) then begin
+      let new_b : bullet list = C.spawn player b_type accel pos in
+      match x with (b_lst, r, b) ->
+      b_lst := (List.fold_left add_bullet !b_lst new_b)
+    end else ()
 
   let update (x : t) : unit =
     match x with (b_lst, r, b) ->
