@@ -12,7 +12,7 @@ module type Collider = sig
   (* val npcEvent : color -> Npc.t -> unit *)
 
   val spawn : Player.t -> bullet_type -> acceleration
-              -> position -> bullet list -> bullet list
+              -> position -> bullet list
 end
 
 module type MakeType = functor (C : Collider) -> sig
@@ -46,10 +46,15 @@ module Make : MakeType = functor (C : Collider) -> struct
       add_update (DeleteBullet x.b_id); a
     end
 
+  let add_bullet (a : bullet list) (x : bullet) : bullet list =
+    add_update (AddBullet (x.b_id, x.b_color, x.b_type, x.b_pos));
+    x::a
+
   let create (red, blue : cons) : t = (ref [], red, blue)
   let spawn (x : t) player b_type accel pos : unit =
+    let new_b : bullet list = C.spawn player b_type accel pos in
     match x with (b_lst, r, b) ->
-    b_lst := (C.spawn player b_type accel pos !b_lst)
+    b_lst := (List.fold_left add_bullet !b_lst new_b)
 
   let update (x : t) : unit =
     match x with (b_lst, r, b) ->

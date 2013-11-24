@@ -10,7 +10,7 @@ module Bullet : Collider = struct
 
   let pEvent (c : color) (p : Player.t) : unit = ()
 
-	let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) (x : bullet list) : bullet list =
+	let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) : bullet list =
 		let speed = float_of_int (speed_of_bullet n) in
 		let radius = radius_of_bullet n in
 		let pos = getPos p in
@@ -25,12 +25,12 @@ module Bullet : Collider = struct
   								b_accel = a;
   								b_radius = radius;
   								b_color = c } in
-              	b::x
+              	[b]
 
   	| Spread -> 
   		let angle_increment = deg_to_rad (1. /. float_of_int cSPREAD_NUM) in
   		let rec num_to_spread acc i angle = 
-  			if i = 0 then acc@x
+  			if i = 0 then acc
   			else 
   				let b : bullet = {
        	  	b_type = Spread;
@@ -60,12 +60,12 @@ module Bullet : Collider = struct
   					b_color = c } in
   				trail_three speed (b::acc) (i-1) in
   		let rec num_to_trail acc i = 
-  			if i = 0 then acc@x
+  			if i = 0 then acc
   			else 
   				let speed_trail = trail_three (cTRAIL_SPEED_STEP * i) [] 2 in
   				num_to_trail (speed_trail@acc) (i-1) in
 		  num_to_trail [] cTRAIL_NUM 
-  	| Power  -> x
+  	| Power  -> []
 end
 
 include Make (Bullet)
