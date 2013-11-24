@@ -1,6 +1,7 @@
 open Definitions
 open Constants
 open Util
+open Netgraphics
 
 type ticks = int ref
 type game = {
@@ -13,11 +14,27 @@ let init_game () : game = { t = ref 0;
                             red = Player.create Red;
                             blue = Player.create Blue }
 
+let get_result game =
+  let rScore : int = Player.getScore game.red in
+  let bScore : int = Player.getScore game.blue in
+  if rScore > bScore then Winner Red
+  else if rScore = bScore then Tie
+  else Winner Blue
+
 let handle_time game =
-  incr game.t;
-  Player.update game.red;
-  Player.update game.blue;
-  (game, Unfinished)
+  if (float_of_int !(game.t)) *. cUPDATE_TIME >= cTIME_LIMIT then begin
+    let res : result = get_result game in
+    add_update (GameOver res);
+    (game, get_result game)
+  end
+  else begin
+    incr game.t;
+    Player.update game.red;
+    Player.update game.blue;
+    Player.updateCharge game.red;
+    Player.updateCharge game.blue;
+    (game, Unfinished)
+  end
 
 let handle_action game col act =
   let p : Player.t = match col with
