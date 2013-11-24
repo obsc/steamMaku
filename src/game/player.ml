@@ -3,7 +3,8 @@ open Constants
 open Util
 open Netgraphics
 
-type t = team_data ref * ((direction * direction) list ref)
+(* lives, bombs, score, power, charge, player, move list, focus *)
+type t = team_data ref * ((direction * direction) list ref) * bool ref
 type cons = color
 
 let get_start_pos (c : color) : position =
@@ -22,6 +23,12 @@ let initGui (id : id) (c : color) (pos : position) : unit =
   add_update (SetPower (c, 0));
   add_update (SetCharge (c, 0))
 
+let setMoves (x : t) (lst : (direction * direction) list) : unit =
+  match x with (t, m, f) -> m := lst
+
+let setFocus (x : t) (b : bool) : unit =
+  match x with (t, m, f) -> f := b
+
 let create (c : color) : t =
   let id : id = next_available_id () in
   let pos : position = get_start_pos c in
@@ -31,8 +38,30 @@ let create (c : color) : t =
                           p_radius = cHITBOX_RADIUS;
                           p_color = c } in
   initGui id c pos;
-  (ref (cINITIAL_LIVES, cINITIAL_BOMBS, 0, 0, 0, p), ref [])
+  (ref (cINITIAL_LIVES, cINITIAL_BOMBS, 0, 0, 0, p), ref [], ref false)
 
-let update (x : t) : unit = ()
+let getSpeed (f : bool) : float =
+  if f then (float_of_int cFOCUSED_SPEED) else (float_of_int cUNFOCUSED_SPEED)
 
-let getData (x : t) : team_data = match x with (t, _) -> !t
+let moveOff (pos : position) (off : vector) : position =
+  let new_pos  = add_v pos off in
+  if in_bounds new_pos then new_pos else pos
+
+let update (x : t) : unit =
+  match x with (t, m, f) ->
+  match !t with (l, b, s, p, c, player) ->
+  (* Calculates the amount the player needs to move by *)
+  let off : float * float = match !m with
+    | []   -> (0., 0.)
+    | h::t -> vector_of_dirs h (getSpeed !f) in
+  let pos : position = moveOff player.p_pos off in
+  let new_player : player_char = { p_id = player.p_id;
+                                   p_pos = pos;
+                                   p_focused = !f;
+                                   p_radius = player.p_radius;
+                                   p_color = player.p_color } in
+  add_update (MovePlayer (player.p_id, pos));
+  t := (l, b, s, p, c, new_player)
+
+let getData (x : t) : team_data =
+  match x with (t, m, f) -> !t

@@ -19,7 +19,16 @@ let handle_time game =
   Player.update game.blue;
   (game, Unfinished)
 
-let handle_action game col act = game
+let handle_action game col act =
+  let p : Player.t = match col with
+    | Red  -> game.red
+    | Blue -> game.blue in
+  begin match act with
+    | Move lst -> Player.setMoves p lst
+    | Shoot (b_type, pos, acc) -> ()
+    | Focus b -> Player.setFocus p b
+    | Bomb -> () end;
+  game
 
 let get_data game =
   (Player.getData game.red, Player.getData game.blue, [], [], [])
