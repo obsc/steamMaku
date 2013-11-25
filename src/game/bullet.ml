@@ -5,17 +5,22 @@ open Projectile
 open Player
 
 module Bullet : Collider = struct
+  (* Check for collisions and grazing for opposite player and bullet colors *)
   let collide (p_col : color) (b_col : color) : bool = p_col <> b_col
   let graze (p_col : color) (b_col : color) : bool = p_col <> b_col
 
+  (* Enemy's bullet has hit p *)
   let playerEvent (clear : unit -> unit) p enemy : bool =
+    (* Upon player death, clear bullets, add score to other player *)
     let event () : unit =
       clear ();
       Player.killedOther enemy in
     Player.hit event p
 
+  (* Player grazes *)
   let grazeEvent (p : Player.t) : bool = Player.graze p
 
+  (* Spawns a type of bullet *)
   let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) : bullet list =
     let speed = float_of_int (speed_of_bullet n) in
     let radius = radius_of_bullet n in

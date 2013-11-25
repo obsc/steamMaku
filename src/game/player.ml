@@ -76,6 +76,7 @@ let update (x : t) : unit =
     { player with p_pos = pos; p_focused = !f } in
   add_update (MovePlayer (player.p_id, pos));
   t := (l, b, s, p, c, new_player);
+  (* Updates invulnerability timers *)
   match !m with
     | Normal    -> ()
     | Mercy n   -> if n = 0 then m := Normal else m := Mercy (n - 1)
@@ -122,7 +123,7 @@ let graze (x : t) : bool =
   t := (l, b, s + cGRAZE_POINTS, p, c, player);
   false
 
-(* Has killed other player *)
+(* Has killed other player: increases score *)
 let killedOther (x : t) : unit =
   match x with (t, moves, f, m) ->
   match !t with (l, b, s, p, c, player) ->
