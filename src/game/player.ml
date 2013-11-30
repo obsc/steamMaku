@@ -55,6 +55,28 @@ let setMoves (x : t) (lst : (direction * direction) list) : unit =
 let setFocus (x : t) (b : bool) : unit =
   x.focused <- b
 
+(* Setters for automatically sending gui updates *)
+let setBombs (x : t) (b : int) : unit =
+  x.bombs <- b;
+  add_update (SetBombs (x.color, x.bombs))
+
+let setPower (x : t) (p : int) : unit =
+  x.power <- p;
+  add_update (SetPower (x.color, x.power))
+
+let addScore (x : t) (s : int) : unit =
+  x.score <- x.score + s;
+  add_update (SetScore (x.color, x.score))
+
+let addCharge (x : t) (c : int) : unit =
+  let new_charge = min (x.charge + c) cCHARGE_MAX in
+  x.charge <- new_charge;
+  add_update (SetCharge (x.color, x.charge))
+
+let addLives (x : t) (l : int) : unit =
+  x.lives <- x.lives + l;
+  add_update (SetLives (x.color, x.lives))
+
 (* Instantiates a player *)
 let create (c : color) : t =
   let id : id = next_available_id () in
@@ -75,8 +97,8 @@ let create (c : color) : t =
 
 (* Moves a position, bounding it to inside the field *)
 let move (pos : position) (offset : vector) : position =
-  let new_pos  = add_v pos offset in
-  if in_bounds new_pos then new_pos else pos
+  let newPos = add_v pos offset in
+  if in_bounds newPos then newPos else pos
 
 (* A single update step: updates focus and position *)
 let update (x : t) : unit =
@@ -96,14 +118,13 @@ let update (x : t) : unit =
 
 (* Updates charge of the player *)
 let updateCharge (x : t) : unit =
-  x.charge <- min (x.charge + cCHARGE_RATE + x.power) cCHARGE_MAX;
-  add_update (SetCharge (x.color, x.charge))
+  addCharge x (cCHARGE_RATE + x.power)
 
 (* Uses up cost amount of charge to shoot a bullet
  * Returns true if successful *)
 let reduceCharge (x : t) (cost : int) : bool =
   if x.charge >= cost then begin
-    x.charge <- x.charge - cost; true
+    addCharge x (-cost); true
   end else false
 
 (* Player is hit by an enemy bullet 
@@ -111,13 +132,10 @@ let reduceCharge (x : t) (cost : int) : bool =
 let hit (event : unit -> unit) (x : t) : bool =
   match x.status with
     | Normal -> begin
-      x.lives <- x.lives - 1;
-      x.bombs <- cINITIAL_BOMBS;
-      x.power <- x.power / 2;
+      addLives x (-1);
+      setBombs x cINITIAL_BOMBS;
+      setPower x (x.power / 2);
       x.status <- Mercy cINVINCIBLE_FRAMES;
-      add_update (SetLives (x.color, x.lives));
-      add_update (SetBombs (x.color, x.bombs));
-      add_update (SetPower (x.color, x.power));
       event ();
       true
     end
@@ -126,15 +144,13 @@ let hit (event : unit -> unit) (x : t) : bool =
 (* Player is grazing an enemy bullet 
  * Returns false to not destroy bullet *)
 let graze (x : t) : bool =
-  x.score <- x.score + cGRAZE_POINTS;
-  add_update (SetScore (x.color, x.score));
+  addScore x cGRAZE_POINTS;
   add_update (Graze);
   false
 
 (* Has killed other player: increases score *)
 let killedOther (x : t) : unit =
-  x.score <- x.score + cKILL_POINTS;
-  add_update (SetScore (x.color, x.score))
+  addScore x cKILL_POINTS
 
 (* Getters for player state *)
 let getHitbox (x : t) : hitbox = (x.pos, float_of_int x.radius)
