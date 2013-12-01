@@ -26,9 +26,7 @@ val getGrazebox : t -> hitbox
 val getPos : t -> position
 val getColor : t -> color
 val getScore : t -> int
-
-(* Gets if the player is dead *)
-val dead : t -> bool
+val getLives : t -> int
 
 (* Returns team data *)
 val getData : t -> team_data

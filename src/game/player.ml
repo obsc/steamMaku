@@ -15,11 +15,11 @@ type t = {
   mutable power : int;
   mutable charge : int;
   mutable moves : (direction * direction) list;
-  mutable id : int;
+  id : int;
   mutable pos : position;
   mutable focused : bool;
-  mutable radius : int;
-  mutable color : color;
+  radius : int;
+  color : color;
   mutable status : invulnerable
 }
 
@@ -163,7 +163,7 @@ let getColor (x : t) : color = x.color
 
 let getScore (x : t) : int = x.score
 
-let dead (x : t) : bool = x.lives <= 0
+let getLives (x : t) : int = x.lives
 
 (* Returns team data of the player *)
 let getData (x : t) : team_data =

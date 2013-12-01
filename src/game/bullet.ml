@@ -21,13 +21,13 @@ module Bullet : Collider = struct
   let grazeEvent (p : Player.t) : bool = Player.graze p
 
   (* Spawns a type of bullet *)
-  let spawn (p : Player.t) (n : bullet_type) (a : acceleration) (target : position) : bullet list =
-    let speed = float_of_int (speed_of_bullet n) in
-    let radius = radius_of_bullet n in
+  let spawn p b_type a target : bullet list =
+    let speed = float_of_int (speed_of_bullet b_type) in
+    let radius = radius_of_bullet b_type in
     let pos = getPos p in
     let c = getColor p in
     let tar = unit_v (subt_v target pos) in
-    match n with
+    match b_type with
     | Bubble -> let b : bullet = {
                   b_type = Bubble;
                   b_id = next_available_id ();  

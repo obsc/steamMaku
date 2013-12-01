@@ -23,15 +23,17 @@ let time_up game : bool =
   (float_of_int !(game.t)) *. cUPDATE_TIME >= cTIME_LIMIT
 
 let get_result game : result =
-  if (Player.dead game.red) && not (Player.dead game.blue) then Winner Blue
-  else if (Player.dead game.blue) && not (Player.dead game.red) then Winner Blue
-  else if time_up game || ((Player.dead game.red) && (Player.dead game.blue))
+  let rLives : int = Player.getLives game.red in
+  let bLives : int = Player.getLives game.blue in
+  let rScore : int = Player.getScore game.red in
+  let bScore : int = Player.getScore game.blue in
+  if time_up game || rLives = 0 || bLives = 0
     then begin
-      let rScore : int = Player.getScore game.red in
-      let bScore : int = Player.getScore game.blue in
-      if rScore > bScore then Winner Red
-      else if rScore = bScore then Tie
-      else Winner Blue
+      if rLives > bLives then Winner Red
+      else if rLives < bLives then Winner Blue
+      else if rScore > bScore then Winner Red
+      else if rScore < bScore then Winner Blue
+      else Tie
     end
   else Unfinished
 

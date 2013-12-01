@@ -45,20 +45,24 @@ module type MakeType = functor (C : Collider) -> sig
 end
 
 module Make : MakeType = functor (C : Collider) -> struct
-  type t = bullet list ref * bool ref * Player.t * Player.t(*  * Npc.t *)
+  type t = {
+    mutable bullets : bullet list;
+    mutable clear : bool;
+    red : Player.t;
+    blue : Player.t
+  }
+
   type cons = Player.t * Player.t(*  * Npc.t *)
 
   (* Tells the projectiles to be cleared next update step *)
-  let setClear (x : t) () : unit =
-    match x with (b_lst, clear, r, b) -> clear := true
+  let setClear (x : t) () : unit = x.clear <- true
 
   (* Clears during time step if clear is set*)
   let updateClear (x : t) : unit =
-    match x with (b_lst, clear, r, b) ->
-    if !clear then begin
-      List.iter (fun x -> add_update (DeleteBullet x.b_id)) !b_lst;
-      b_lst := [];
-      clear := false
+    if x.clear then begin
+      List.iter (fun x -> add_update (DeleteBullet x.b_id)) x.bullets;
+      x.bullets <- [];
+      x.clear <- false
     end else ()
 
   (* Checks if two hitboxes are colliding *)
@@ -102,27 +106,26 @@ module Make : MakeType = functor (C : Collider) -> struct
     b::a
   
   (* Instantiates a projectile handler *)
-  let create (red, blue : cons) : t = (ref [], ref false, red, blue)
+  let create (red, blue : cons) : t = { bullets = [];
+                                        clear = false;
+                                        red = red;
+                                        blue = blue }
 
   (* Spawns a single type of projectile *)
   let spawn (x : t) player b_type accel pos : unit =
     if Player.reduceCharge player (cost_of_bullet b_type) then begin
       let new_b : bullet list = C.spawn player b_type accel pos in
-      match x with (b_lst, clear, r, b) ->
-      b_lst := (List.fold_left addBullet !b_lst new_b)
+      x.bullets <- (List.fold_left addBullet x.bullets new_b)
     end else ()
 
   (* Updates movement for all projectiles *)
   let update (x : t) : unit =
-    match x with (b_lst, clear, r, b) ->
-    b_lst := (List.fold_left updatePos [] !b_lst)
+    x.bullets <- (List.fold_left updatePos [] x.bullets)
   
   (* Collision handling for all projectiles *)
   let collideAll (x : t) : unit =
-    match x with (b_lst, clear, r, b) ->
-    b_lst := (List.fold_left (collideOne x r b) [] !b_lst)
+    x.bullets <- (List.fold_left (collideOne x x.red x.blue) [] x.bullets)
 
   (* Returns projectile data *)
-  let getData (x : t) : bullet list =
-    match x with (b_lst, clear, r, b) -> !b_lst
+  let getData (x : t) : bullet list = x.bullets
 end
