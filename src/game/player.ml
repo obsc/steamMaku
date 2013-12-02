@@ -153,11 +153,12 @@ let graze (x : t) : bool =
     | _         -> false
 
 (* Sets status to bombing when player uses a bomb *)
-let bomb (x : t) : unit =
+let bomb (x : t) : bool =
   if x.bombs > 0 then begin
     setBombs x (x.bombs - 1);
-    x.status <- Bombing cBOMB_DURATION
-  end else ()
+    x.status <- Bombing cBOMB_DURATION;
+    true
+  end else false
 
 (* Has killed other player: increases score *)
 let killedOther (x : t) : unit =

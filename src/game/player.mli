@@ -17,8 +17,8 @@ val reduceCharge : t -> int -> bool
 val hit : (unit -> unit) -> t -> bool
 val graze : t -> bool
 
-(* Event upon player using a bomb *)
-val bomb : t -> unit
+(* Event upon player using a bomb, returns true upon success *)
+val bomb : t -> bool
 
 (* Killed other player *)
 val killedOther : t -> unit
