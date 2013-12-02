@@ -1,9 +1,9 @@
 open Definitions
 open Constants
+open Gameutil
 open Util
 open Netgraphics
 
-type npctype = Simple
 type behavior = ufo ref -> unit
 type time = int
 type t = {
@@ -13,12 +13,10 @@ type cons = unit
 
 let () = Random.self_init ()
 
-let f_width : float = float_of_int cBOARD_WIDTH
-let f_height : float = float_of_int cBOARD_HEIGHT
 let f_speed : float = float_of_int cUFO_SPEED
 
 (* Initializes the list of npcs *)
-let create (c : unit) : t = ref []
+let create (c : unit) : t = { ufos = [] }
 
 (* xpos and ypos are the functions that determine an initial npc's location*)
 let get_start_pos (n : npctype) : position =
