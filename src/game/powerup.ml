@@ -17,15 +17,15 @@ module PowerUp : Collider = struct
   let npcEvent (n : Npc.t) (c : color) (id : id) : bool = false
 
   (* Spawns a powerup *)
-  let spawn p b_type a target : power =
+  let spawn pos c b_type a target : power list =
     let tar = unit_v (subt_v target pos) in
-    { b_type = Bubble;
+    [{ b_type = Power;
       b_id = next_available_id ();  
       b_pos = pos;
       b_vel = scale (float_of_int (speed_of_bullet Power)) tar;
-      b_accel = 0;
+      b_accel = (0.,0.);
       b_radius = radius_of_bullet Power;
-      b_color = Blue }
+      b_color = c }]
 end
 
-include Make (Bullet)
+include Make (PowerUp)

@@ -4,7 +4,8 @@ open Definitions
 include Object with type cons = Player.t * Player.t * Npc.t
 
 (* Spawns a single type of bullet *)
-val spawn : t -> Player.t -> bullet_type -> acceleration -> position -> unit
+val spawn : t -> position -> color -> bullet_type
+              -> acceleration -> position -> unit
 
 (* Collision handling *)
 val collideAll : t -> unit

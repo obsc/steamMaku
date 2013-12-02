@@ -63,6 +63,7 @@ game/game.exe:           \
 	game/npc.cmo         \
 	game/projectile.cmo  \
 	game/bullet.cmo      \
+	game/powerup.cmo     \
 	game/game.cmo        \
 	game/server.cmo
 

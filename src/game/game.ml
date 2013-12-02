@@ -8,7 +8,8 @@ type game = {
   red : Player.t;
   blue : Player.t;
   bullets : Bullet.t;
-  ufos : Npc.t
+  ufos : Npc.t;
+  powers : Powerup.t
 }
 
 let init_game () : game =
@@ -19,7 +20,8 @@ let init_game () : game =
     red = red;
     blue = blue;
     bullets = Bullet.create (red, blue, ufos);
-    ufos = ufos }
+    ufos = ufos;
+    powers = Powerup.create (red, blue, ufos) }
 
 let time_up game : bool =
   (float_of_int game.t) *. cUPDATE_TIME >= cTIME_LIMIT
@@ -48,6 +50,7 @@ let handle_time game =
   game.t <- game.t + 1;
   spawnUfo game;
   Bullet.update game.bullets;
+  Powerup.update game.powers;
   Npc.update game.ufos;
   Player.update game.red;
   Player.update game.blue;
@@ -57,13 +60,18 @@ let handle_time game =
   Bullet.updateClear game.bullets;
   (game, get_result game)
 
+let shootBullet game p b_type pos acc : unit =
+  if Player.reduceCharge p (cost_of_bullet b_type) then
+  Bullet.spawn game.bullets (Player.getPos p) (Player.getColor p) b_type acc pos
+  else ()
+
 let handle_action game col act =
   let p : Player.t = match col with
     | Red  -> game.red
     | Blue -> game.blue in
   begin match act with
     | Move lst -> Player.setMoves p lst
-    | Shoot (b_type, pos, acc) -> Bullet.spawn game.bullets p b_type acc pos
+    | Shoot (b_type, pos, acc) -> shootBullet game p b_type pos acc
     | Focus b -> Player.setFocus p b
     | Bomb -> if Player.bomb p then Bullet.clearAll game.bullets else ()
   end;

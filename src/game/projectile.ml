@@ -20,8 +20,8 @@ module type Collider = sig
   val npcEvent : Npc.t -> color -> id -> bool
 
   (* Spawn a list of bullets/powers *)
-  val spawn : Player.t -> bullet_type -> acceleration
-              -> position -> bullet list
+  val spawn : position -> color -> bullet_type
+              -> acceleration -> position -> bullet list
 end
 
 module type MakeType = functor (C : Collider) -> sig
@@ -38,7 +38,8 @@ module type MakeType = functor (C : Collider) -> sig
   val create : cons -> t
 
   (* Spawns a single type of projectile *)
-  val spawn : t -> Player.t -> bullet_type -> acceleration -> position -> unit
+  val spawn : t -> position -> color -> bullet_type
+                -> acceleration -> position -> unit
 
   (* Updates movement for projectiles *)
   val update : t -> unit
@@ -134,11 +135,9 @@ module Make : MakeType = functor (C : Collider) -> struct
                                              npc = npc }
 
   (* Spawns a single type of projectile *)
-  let spawn (x : t) player b_type accel pos : unit =
-    if Player.reduceCharge player (cost_of_bullet b_type) then begin
-      let new_b : bullet list = C.spawn player b_type accel pos in
-      x.bullets <- (List.fold_left addBullet x.bullets new_b)
-    end else ()
+  let spawn (x : t) pos c b_type accel pos : unit =
+    let new_b : bullet list = C.spawn pos c b_type accel pos in
+    x.bullets <- (List.fold_left addBullet x.bullets new_b)
 
   (* Updates movement for all projectiles *)
   let update (x : t) : unit =
