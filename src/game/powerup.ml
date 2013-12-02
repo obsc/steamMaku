@@ -5,22 +5,19 @@ open Projectile
 open Player
 
 module PowerUp : Collider = struct
-  (* Check for collisions and grazing for opposite player and bullet colors *)
   let collide (p_col : color) (b_col : color) : bool = true
   let graze (p_col : color) (b_col : color) : bool = false
+  let collideNpc (b_col : color) : bool = false
 
   (* Player has run into p *)
   let playerEvent (clear : unit -> unit) p enemy : bool =
-    (* Upon player death, clear bullets, add score to other player *)
-    let event () : unit =
-      Player.killedOther enemy in
-    Player.hit event p
+    Player.gainPower p
 
-  (* Player grazes *)
   let grazeEvent (p : Player.t) : bool = false
+  let npcEvent (n : Npc.t) (c : color) (id : id) : bool = false
 
-  (* Spawns a type of bullet *)
-  let spawn ufo target : power =
+  (* Spawns a powerup *)
+  let spawn p b_type a target : power =
     let tar = unit_v (subt_v target pos) in
     { b_type = Bubble;
       b_id = next_available_id ();  

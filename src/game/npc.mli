@@ -1,7 +1,7 @@
 open Definitions
 open Gameutil
 
-include Object with type cons = unit
+include Object with type cons = Player.t * Player.t
 
 (* Spawns a single ufo *)
 val spawn : t -> unit

@@ -20,6 +20,9 @@ val graze : t -> bool
 (* Event upon player using a bomb, returns true upon success *)
 val bomb : t -> bool
 
+(* Event upon player colliding with powerup *)
+val gainPower : t -> bool
+
 (* Killed other player *)
 val killedOther : t -> unit
 

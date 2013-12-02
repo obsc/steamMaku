@@ -160,6 +160,12 @@ let bomb (x : t) : bool =
     true
   end else false
 
+(* Collides with powerup *)
+let gainPower (x : t) : bool =
+  setPower x (x.power + 1);
+  addScore x cPOWER_POINTS;
+  true
+
 (* Has killed other player: increases score *)
 let killedOther (x : t) : unit =
   addScore x cKILL_POINTS

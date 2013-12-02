@@ -8,15 +8,19 @@ type behavior = ufo -> int -> ufo
 type time = int
 type t = {
   mutable ufos : (ufo * behavior * time) list;
+  red : Player.t;
+  blue : Player.t
 }
-type cons = unit
+type cons = Player.t * Player.t
 
 let () = Random.self_init ()
 
 let f_speed : float = float_of_int cUFO_SPEED
 
 (* Initializes the list of npcs *)
-let create (c : unit) : t = { ufos = [] }
+let create (red, blue : cons) : t = { ufos = [];
+                                      red = red;
+                                      blue = blue }
 
 (* xpos and ypos are the functions that determine an initial npc's location*)
 let start_pos () : position =
