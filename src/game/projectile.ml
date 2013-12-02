@@ -135,8 +135,8 @@ module Make : MakeType = functor (C : Collider) -> struct
                                              npc = npc }
 
   (* Spawns a single type of projectile *)
-  let spawn (x : t) pos c b_type accel pos : unit =
-    let new_b : bullet list = C.spawn pos c b_type accel pos in
+  let spawn (x : t) pos c b_type accel tar : unit =
+    let new_b : bullet list = C.spawn pos c b_type accel tar in
     x.bullets <- (List.fold_left addBullet x.bullets new_b)
 
   (* Updates movement for all projectiles *)
