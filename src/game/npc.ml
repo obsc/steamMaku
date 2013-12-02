@@ -102,8 +102,8 @@ let hit (x : t) (id : int) (shot_by : color) : bool =
       else u in
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then begin
       add_update (DeleteUFO id);
-      let num_red = n_ufo.u_red_hits / cUFO_HITS * cUFO_POWER_NUM in
-      let num_blue = n_ufo.u_blue_hits / cUFO_HITS * cUFO_POWER_NUM in
+      let num_red = (n_ufo.u_red_hits * cUFO_POWER_NUM) / cUFO_HITS in
+      let num_blue = (n_ufo.u_blue_hits * cUFO_POWER_NUM) / cUFO_HITS in
       spawnPowerups x num_red num_blue n_ufo
     end;
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then acc
