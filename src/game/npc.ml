@@ -9,7 +9,8 @@ type time = int
 type t = {
   mutable ufos : (ufo * behavior * time) list;
   red : Player.t;
-  blue : Player.t
+  blue : Player.t;
+  mutable powers : Powerup.t option
 }
 type cons = Player.t * Player.t
 
@@ -20,7 +21,11 @@ let f_speed : float = float_of_int cUFO_SPEED
 (* Initializes the list of npcs *)
 let create (red, blue : cons) : t = { ufos = [];
                                       red = red;
-                                      blue = blue }
+                                      blue = blue;
+                                      powers = None }
+
+let setPowerRef (x : t) (powers : Powerup.t) : unit = 
+  x.powers <- Some powers
 
 (* xpos and ypos are the functions that determine an initial npc's location*)
 let start_pos () : position =
@@ -66,6 +71,28 @@ let update (x : t) : unit =
   let update_one acc (u, b, t) = (b u t, b, t + 1)::acc in
   x.ufos <- List.fold_left (update_one) [] x.ufos
 
+(* Returns a random location in the radius of the ufo *)
+let getRandomPos (u : ufo) : position = 
+  let s = Random.float (float_of_int cUFO_SCATTER_RADIUS) in
+  let random = (Random.float f_width, Random.float f_height) in
+  add_v (scale s (unit_v (subt_v random u.u_pos))) u.u_pos
+
+(* Spawns powerups after the UFO dies *)
+let rec spawnPowerups (x : t) (num_red : int) (num_blue : int) (u : ufo): unit =
+  match x.powers with 
+  | None -> ()
+  | Some pow -> begin
+      if num_red = 0 && num_blue = 0 then ()
+      else if num_red > 0 then begin
+        Powerup.spawn pow (getRandomPos u) Red Power (0., 0.) (Player.getPos x.red);
+        spawnPowerups x (num_red - 1) num_blue u
+      end
+      else begin 
+        Powerup.spawn pow (getRandomPos u) Blue Power (0., 0.) (Player.getPos x.blue);
+        spawnPowerups x num_red (num_blue - 1) u
+      end
+    end
+
 (* The hit UFO updates *)
 let hit (x : t) (id : int) (shot_by : color) : bool =
   let hit_one acc (u, b, t) = 
@@ -76,7 +103,10 @@ let hit (x : t) (id : int) (shot_by : color) : bool =
         | Blue -> { u with u_blue_hits = u.u_blue_hits + 1}
       else u in
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then begin
-      add_update (DeleteUFO id) (* spawn powerups here *)
+      add_update (DeleteUFO id);
+      let num_red = n_ufo.u_red_hits / cUFO_HITS * cUFO_POWER_NUM in
+      let num_blue = n_ufo.u_blue_hits / cUFO_HITS * cUFO_POWER_NUM in
+      spawnPowerups x num_red num_blue n_ufo
     end;
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then acc
     else (n_ufo, b, t)::acc in
