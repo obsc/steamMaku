@@ -6,11 +6,13 @@ open Netgraphics
 
 type behavior = ufo -> int -> ufo
 type time = int
+type spawner = position -> color -> bullet_type
+               -> acceleration -> position -> unit
 type t = {
   mutable ufos : (ufo * behavior * time) list;
   red : Player.t;
   blue : Player.t;
-  mutable powers : Powerup.t option
+  mutable spawn : spawner
 }
 type cons = Player.t * Player.t
 
@@ -22,10 +24,10 @@ let f_speed : float = float_of_int cUFO_SPEED
 let create (red, blue : cons) : t = { ufos = [];
                                       red = red;
                                       blue = blue;
-                                      powers = None }
+                                      spawn = (fun a b c d e -> ()) }
 
-let setPowerRef (x : t) (powers : Powerup.t) : unit = 
-  x.powers <- Some powers
+let setSpawn (x : t) (spawner : spawner) : unit = 
+  x.spawn <- spawner
 
 (* xpos and ypos are the functions that determine an initial npc's location*)
 let start_pos () : position =
@@ -79,19 +81,15 @@ let getRandomPos (u : ufo) : position =
 
 (* Spawns powerups after the UFO dies *)
 let rec spawnPowerups (x : t) (num_red : int) (num_blue : int) (u : ufo): unit =
-  match x.powers with 
-  | None -> ()
-  | Some pow -> begin
-      if num_red = 0 && num_blue = 0 then ()
-      else if num_red > 0 then begin
-        Powerup.spawn pow (getRandomPos u) Red Power (0., 0.) (Player.getPos x.red);
-        spawnPowerups x (num_red - 1) num_blue u
-      end
-      else begin 
-        Powerup.spawn pow (getRandomPos u) Blue Power (0., 0.) (Player.getPos x.blue);
-        spawnPowerups x num_red (num_blue - 1) u
-      end
-    end
+  if num_red = 0 && num_blue = 0 then ()
+  else if num_red > 0 then begin
+    x.spawn (getRandomPos u) Red Power (0., 0.) (Player.getPos x.red);
+    spawnPowerups x (num_red - 1) num_blue u
+  end
+  else begin 
+    x.spawn (getRandomPos u) Blue Power (0., 0.) (Player.getPos x.blue);
+    spawnPowerups x num_red (num_blue - 1) u
+  end
 
 (* The hit UFO updates *)
 let hit (x : t) (id : int) (shot_by : color) : bool =

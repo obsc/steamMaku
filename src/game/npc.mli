@@ -16,4 +16,5 @@ val getHitbox : t -> (id * hitbox) list
 val getData : t -> ufo list
 
 (* Sets a reference to powerups*)
-val setPowerRef : Powerup.t -> unit
+val setSpawn : t -> (position -> color -> bullet_type
+               -> acceleration -> position -> unit)-> unit

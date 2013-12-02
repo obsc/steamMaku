@@ -15,14 +15,14 @@ type game = {
 let init_game () : game =
   let red = Player.create Red in
   let blue = Player.create Blue in
-  let bullets = Bullet.create (red, blue, ufos) in
   let ufos = Npc.create (red, blue) in
+  let bullets = Bullet.create (red, blue, ufos) in
   let powers = Powerup.create (red, blue, ufos) in
-  Npc.setPowerRef ufos powers;
+  Npc.setSpawn ufos (Powerup.spawn powers);
   { t = 0;
     red = red;
     blue = blue;
-    bullets = bullets
+    bullets = bullets;
     ufos = ufos;
     powers = powers }
 
@@ -58,6 +58,7 @@ let handle_time game =
   Player.update game.red;
   Player.update game.blue;
   Bullet.collideAll game.bullets;
+  Powerup.collideAll game.powers;
   Player.updateCharge game.red;
   Player.updateCharge game.blue;
   Bullet.updateClear game.bullets;
