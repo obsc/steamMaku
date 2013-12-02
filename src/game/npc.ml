@@ -4,7 +4,7 @@ open Gameutil
 open Util
 open Netgraphics
 
-type behavior = ufo ref -> unit
+type behavior = ufo -> int -> ufo
 type time = int
 type t = {
   mutable ufos : (ufo * behavior * time) list;
@@ -43,7 +43,7 @@ let get_behavior (n : npctype) : behavior =
       (* update ufo position *)
       let n_pos = add_v u.u_pos n_vel in
       (* update ufo velocity *) 
-      add_update (MoveUFO (id, n_pos));
+      add_update (MoveUFO (u.u_id, n_pos));
       { u with u_pos = n_pos; u_vel = n_vel} in
     simple
 
@@ -74,9 +74,9 @@ let hit (x : t) (id : int) (shot_by : color) : bool =
     let n_ufo = 
       if u.u_id = id then 
         match shot_by with
-        | Red -> { u with u_red_hits = u_red_hits + 1}
-        | Blue -> { u with u_blue_hits = u_blue_hits + 1}
-      else ufo in
+        | Red -> { u with u_red_hits = u.u_red_hits + 1}
+        | Blue -> { u with u_blue_hits = u.u_blue_hits + 1}
+      else u in
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then add_update (DeleteUFO id); (* spawn powerups here *)
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then acc
     else acc@[(n_ufo, b, t)] in
