@@ -25,6 +25,9 @@ module type MakeType = functor (C : Collider) -> sig
   type t
   type cons = Player.t * Player.t(*  * Npc.t *)
 
+  (* Clears all bullets *)
+  val clearAll : t -> unit
+
   (* Update event for clearing all projectiles *)
   val updateClear : t -> unit
 
@@ -54,14 +57,17 @@ module Make : MakeType = functor (C : Collider) -> struct
 
   type cons = Player.t * Player.t(*  * Npc.t *)
 
-  (* Tells the projectiles to be cleared next update step *)
+  let clearAll (x : t) : unit = 
+    List.iter (fun x -> add_update (DeleteBullet x.b_id)) x.bullets;
+    x.bullets <- []
+
+  (* Tells the projectiles to be cleared this step *)
   let setClear (x : t) () : unit = x.clear <- true
 
   (* Clears during time step if clear is set*)
   let updateClear (x : t) : unit =
     if x.clear then begin
-      List.iter (fun x -> add_update (DeleteBullet x.b_id)) x.bullets;
-      x.bullets <- [];
+      clearAll x;
       x.clear <- false
     end else ()
 

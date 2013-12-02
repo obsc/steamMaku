@@ -56,7 +56,7 @@ let handle_action game col act =
     | Move lst -> Player.setMoves p lst
     | Shoot (b_type, pos, acc) -> Bullet.spawn game.bullets p b_type acc pos
     | Focus b -> Player.setFocus p b
-    | Bomb -> () end;
+    | Bomb -> (Player.bomb p; Bullet.clearAll game.bullets) end;
   game
 
 let get_data game =

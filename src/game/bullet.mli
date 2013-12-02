@@ -9,6 +9,9 @@ val spawn : t -> Player.t -> bullet_type -> acceleration -> position -> unit
 (* Collision handling *)
 val collideAll : t -> unit
 
+(* Clears all bullets *)
+val clearAll : t -> unit
+
 (* Update event for clearing all bullets *)
 val updateClear : t -> unit
 

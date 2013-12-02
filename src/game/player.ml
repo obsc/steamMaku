@@ -118,7 +118,9 @@ let update (x : t) : unit =
 
 (* Updates charge of the player *)
 let updateCharge (x : t) : unit =
-  addCharge x (cCHARGE_RATE + x.power)
+  match x.status with
+    | Bombing n -> ()
+    | _         -> addCharge x (cCHARGE_RATE + x.power)
 
 (* Uses up cost amount of charge to shoot a bullet
  * Returns true if successful *)
@@ -146,7 +148,16 @@ let hit (event : unit -> unit) (x : t) : bool =
 let graze (x : t) : bool =
   addScore x cGRAZE_POINTS;
   add_update (Graze);
-  false
+  match x.status with
+    | Bombing n -> true
+    | _         -> false
+
+(* Sets status to bombing when player uses a bomb *)
+let bomb (x : t) : unit =
+  if x.bombs > 0 then begin
+    setBombs x (x.bombs - 1);
+    x.status <- Bombing cBOMB_DURATION
+  end else ()
 
 (* Has killed other player: increases score *)
 let killedOther (x : t) : unit =
