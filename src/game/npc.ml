@@ -17,7 +17,10 @@ let f_width : float = float_of_int cBOARD_WIDTH
 let f_height : float = float_of_int cBOARD_HEIGHT
 let f_speed : float = float_of_int cUFO_SPEED
 
-(* xpos and ypos are the functions that determine an npc's location*)
+(* Initializes the list of npcs *)
+let create (c : unit) : t = ref []
+
+(* xpos and ypos are the functions that determine an initial npc's location*)
 let get_start_pos (n : npctype) : position =
   match n with
   | Simple -> let top_or_bot : int = Random.int 2 in
@@ -25,6 +28,9 @@ let get_start_pos (n : npctype) : position =
     let y : float = if top_or_bot = 0 then 0. else f_height in
     (x, y)
 
+(* Every NPC type has a unique behavior on a timestep 
+ *    UFO types simply move in a random direction
+ *)
 let get_behavior (n : npctype) : behavior = 
   match n with
   | Simple -> 
@@ -43,8 +49,7 @@ let get_behavior (n : npctype) : behavior =
       { u with u_pos = n_pos; u_vel = n_vel} in
     simple
 
-let create (c : unit) : t = ref []
-
+(* Spawns a single npc into the game based on its type *)
 let spawn (n : npctype) (x : t) : unit = 
   let id : id = next_available_id () in
   match n with
@@ -60,6 +65,22 @@ let spawn (n : npctype) (x : t) : unit =
               x.ufos <- (u, b, 1)::(x.ufos);
               add_update (AddUFO (id, pos))
 
+(* Goes through every npc and performs an update *)
 let update (x : t) : unit = 
   let update_one acc (u, b, t) = acc@[(b u t, b, t + 1)] in
   x.ufos <- List.fold_left (update_one) [] x.ufos
+
+(* The hit UFO updates *)
+let hit (x : t) (id : int) (shot_by : color) : bool =
+  let hit_one acc (u, b, t) = 
+    let n_ufo = 
+      if u.u_id = id then 
+        match shot_by with
+        | Red -> { u with u_red_hits = u_red_hits + 1}
+        | Blue -> { u with u_blue_hits = u_blue_hits + 1}
+      else ufo in
+    if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then add_update (DeleteUFO id); (* spawn powerups here *)
+    if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then acc
+    else acc@[(n_ufo, b, t)] in
+  x.ufos <- List.fold_left (hit_one) [] x.ufos;
+  true

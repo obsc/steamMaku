@@ -7,3 +7,4 @@ val create : unit -> t
 
 val spawn : npctype -> t -> unit 
 val update : t -> unit
+val hit : t -> int -> color -> bool
