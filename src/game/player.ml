@@ -34,8 +34,8 @@ let getStartPos (c : color) : position =
   let m : float = match c with
     | Red  -> 0.125
     | Blue -> 0.875 in
-  let x : float = m *. (float_of_int cBOARD_WIDTH) in
-  let y : float = 0.5 *. (float_of_int cBOARD_HEIGHT) in
+  let x : float = m *. f_width in
+  let y : float = 0.5 *. f_height in
   (x, y)
 
 (* Initializes the gui for that player *)
