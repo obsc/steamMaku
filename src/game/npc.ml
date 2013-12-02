@@ -19,7 +19,7 @@ let f_speed : float = float_of_int cUFO_SPEED
 let create (c : unit) : t = { ufos = [] }
 
 (* xpos and ypos are the functions that determine an initial npc's location*)
-let start_pos : position =
+let start_pos () : position =
   let top_or_bot : int = Random.int 2 in
   let x : float = (Random.float (0.5 *. f_width)) +. 0.25 *. f_width in
   let y : float = if top_or_bot = 0 then 0. else f_height in
@@ -31,7 +31,7 @@ let start_pos : position =
 let behavior (u : ufo) (time: int) : ufo = 
   let n_vel = 
     (* new destination *)
-    if time mod cUFO_MOVE_INTERVAL = 0 then 
+    if time mod cUFO_MOVE_INTERVAL = 0 then
       unit_v (subt_v (Random.float f_width, Random.float f_height) u.u_pos)
     (* keep old destination *)
     else
@@ -45,7 +45,7 @@ let behavior (u : ufo) (time: int) : ufo =
 (* Spawns a single npc into the game based on its type *)
 let spawn (x : t) : unit = 
   let id : id = next_available_id () in
-  let pos : position = start_pos in
+  let pos : position = start_pos () in
   let b : behavior = behavior in
   let u : ufo = {
     u_id = id;
@@ -78,6 +78,8 @@ let hit (x : t) (id : int) (shot_by : color) : bool =
     else (n_ufo, b, t)::acc in
   x.ufos <- List.fold_left (hit_one) [] x.ufos;
   true
+
+let getHitbox (x : t) : (id * hitbox) list = []
 
 let getData (x : t) : ufo list =
   List.map (fun (n_ufo, b, t) -> n_ufo) x.ufos

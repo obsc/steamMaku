@@ -7,14 +7,17 @@ module type Collider = sig
   (* Player color -> bullet color -> can collide *)
   val collide : color -> color -> bool
   val graze : color -> color -> bool
-  (* val collideNpc : color -> bool *)
+
+  (* bullet color -> can collide *)
+  val collideNpc : color -> bool
 
   (* Events upon collision
    * the boolean returned determines if the projectile is deleted or not
    * clear event -> self -> enemy -> will delete? *)
   val playerEvent : (unit -> unit) -> Player.t -> Player.t -> bool
   val grazeEvent : Player.t -> bool
-  (* val npcEvent : color -> Npc.t -> unit *)
+
+  val npcEvent : Npc.t -> color -> id -> bool
 
   (* Spawn a list of bullets/powers *)
   val spawn : Player.t -> bullet_type -> acceleration
@@ -23,7 +26,7 @@ end
 
 module type MakeType = functor (C : Collider) -> sig
   type t
-  type cons = Player.t * Player.t(*  * Npc.t *)
+  type cons = Player.t * Player.t * Npc.t
 
   (* Clears all bullets *)
   val clearAll : t -> unit
@@ -52,10 +55,11 @@ module Make : MakeType = functor (C : Collider) -> struct
     mutable bullets : bullet list;
     mutable clear : bool;
     red : Player.t;
-    blue : Player.t
+    blue : Player.t;
+    npc : Npc.t
   }
 
-  type cons = Player.t * Player.t(*  * Npc.t *)
+  type cons = Player.t * Player.t * Npc.t
 
   let clearAll (x : t) : unit = 
     List.iter (fun x -> add_update (DeleteBullet x.b_id)) x.bullets;
@@ -101,9 +105,20 @@ module Make : MakeType = functor (C : Collider) -> struct
       then C.grazeEvent p
     else false
 
+  (* Checks the collision on a single npc *)
+  let checkNpc n b (a : bool) (id, hit) : bool =
+    if C.collideNpc b.b_color && isCollide (getHitbox b) hit
+    then a || (C.npcEvent n b.b_color id) else a
+
+  (* Checks the collision on the npcs *)
+  let checkNpcs (x : t) (b : bullet) (n : Npc.t) : bool =
+    List.fold_left (checkNpc n b) false (Npc.getHitbox n)
+
   (* Handles a single collision *)
-  let collideOne (x : t) red blue (a : bullet list) (b : bullet) : bullet list =
-    if checkPlayer x b red blue || checkPlayer x b blue red
+  let collideOne (x : t) (a : bullet list) (b : bullet) : bullet list =
+    if checkPlayer x b x.red x.blue
+       || checkPlayer x b x.blue x.red
+       || checkNpcs x b x.npc
     then (add_update (DeleteBullet b.b_id); a) else b::a
 
   (* Adds a bullet to the gui and the bullet list *)
@@ -112,10 +127,11 @@ module Make : MakeType = functor (C : Collider) -> struct
     b::a
   
   (* Instantiates a projectile handler *)
-  let create (red, blue : cons) : t = { bullets = [];
-                                        clear = false;
-                                        red = red;
-                                        blue = blue }
+  let create (red, blue, npc : cons) : t = { bullets = [];
+                                             clear = false;
+                                             red = red;
+                                             blue = blue;
+                                             npc = npc }
 
   (* Spawns a single type of projectile *)
   let spawn (x : t) player b_type accel pos : unit =
@@ -130,7 +146,7 @@ module Make : MakeType = functor (C : Collider) -> struct
   
   (* Collision handling for all projectiles *)
   let collideAll (x : t) : unit =
-    x.bullets <- (List.fold_left (collideOne x x.red x.blue) [] x.bullets)
+    x.bullets <- (List.fold_left (collideOne x) [] x.bullets)
 
   (* Returns projectile data *)
   let getData (x : t) : bullet list = x.bullets

@@ -14,11 +14,12 @@ type game = {
 let init_game () : game =
   let red = Player.create Red in
   let blue = Player.create Blue in
+  let ufos = Npc.create () in
   { t = 0;
     red = red;
     blue = blue;
-    bullets = Bullet.create (red, blue);
-    ufos = Npc.create () }
+    bullets = Bullet.create (red, blue, ufos);
+    ufos = ufos }
 
 let time_up game : bool =
   (float_of_int game.t) *. cUPDATE_TIME >= cTIME_LIMIT
