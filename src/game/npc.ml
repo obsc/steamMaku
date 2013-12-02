@@ -79,7 +79,11 @@ let hit (x : t) (id : int) (shot_by : color) : bool =
   x.ufos <- List.fold_left (hit_one) [] x.ufos;
   true
 
-let getHitbox (x : t) : (id * hitbox) list = []
+(* The hitbox of all the npcs *)
+let getHitbox (x : t) : (id * hitbox) list = 
+  let to_hitbox (u, b, t) =
+    (u.u_id, (u.u_pos, float_of_int cUFO_RADIUS)) in
+  List.map to_hitbox x.ufos
 
 let getData (x : t) : ufo list =
   List.map (fun (n_ufo, b, t) -> n_ufo) x.ufos
