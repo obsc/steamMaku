@@ -4,8 +4,6 @@ open Constants
 type radius = float
 type hitbox = position * radius
 
-type npctype = Simple
-
 let f_width : float = float_of_int cBOARD_WIDTH
 let f_height : float = float_of_int cBOARD_HEIGHT
 

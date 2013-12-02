@@ -60,6 +60,7 @@ game/game.exe:           \
 	game/netgraphics.cmo \
 	game/gameutil.cmo    \
 	game/player.cmo      \
+	game/npc.cmo         \
 	game/projectile.cmo  \
 	game/bullet.cmo      \
 	game/game.cmo        \

@@ -3,24 +3,25 @@ open Constants
 open Util
 open Netgraphics
 
-type ticks = int ref
 type game = {
-  t : ticks;
+  mutable t : int;
   red : Player.t;
   blue : Player.t;
-  bullets : Bullet.t
+  bullets : Bullet.t;
+  ufos : Npc.t
 }
 
 let init_game () : game =
   let red = Player.create Red in
   let blue = Player.create Blue in
-  { t = ref 0;
+  { t = 0;
     red = red;
     blue = blue;
-    bullets = Bullet.create (red, blue) }
+    bullets = Bullet.create (red, blue);
+    ufos = Npc.create () }
 
 let time_up game : bool =
-  (float_of_int !(game.t)) *. cUPDATE_TIME >= cTIME_LIMIT
+  (float_of_int game.t) *. cUPDATE_TIME >= cTIME_LIMIT
 
 let get_result game : result =
   let rLives : int = Player.getLives game.red in
@@ -37,9 +38,16 @@ let get_result game : result =
     end
   else Unfinished
 
+let spawnUfo game : unit =
+  if game.t mod cUFO_SPAWN_INTERVAL = 0 
+  then Npc.spawn game.ufos
+  else ()
+
 let handle_time game =
-  incr game.t;
+  game.t <- game.t + 1;
+  spawnUfo game;
   Bullet.update game.bullets;
+  Npc.update game.ufos;
   Player.update game.red;
   Player.update game.blue;
   Bullet.collideAll game.bullets;
@@ -62,5 +70,5 @@ let handle_action game col act =
 
 let get_data game =
   (Player.getData game.red, Player.getData game.blue,
-    [], Bullet.getData game.bullets, [])
+    Npc.getData game.ufos, Bullet.getData game.bullets, [])
 
