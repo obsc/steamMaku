@@ -14,3 +14,6 @@ val getHitbox : t -> (id * hitbox) list
 
 (* Returns the internal data for npcs *)
 val getData : t -> ufo list
+
+(* Sets a reference to powerups*)
+val setPowerRef : Powerup.t -> unit
