@@ -15,13 +15,16 @@ type game = {
 let init_game () : game =
   let red = Player.create Red in
   let blue = Player.create Blue in
+  let bullets = Bullet.create (red, blue, ufos) in
   let ufos = Npc.create (red, blue) in
+  let powers = Powerup.create (red, blue, ufos) in
+  Npc.setPowerRef ufos powers;
   { t = 0;
     red = red;
     blue = blue;
-    bullets = Bullet.create (red, blue, ufos);
+    bullets = bullets
     ufos = ufos;
-    powers = Powerup.create (red, blue, ufos) }
+    powers = powers }
 
 let time_up game : bool =
   (float_of_int game.t) *. cUPDATE_TIME >= cTIME_LIMIT

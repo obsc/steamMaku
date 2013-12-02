@@ -23,7 +23,7 @@ module PowerUp : Collider = struct
       b_id = next_available_id ();  
       b_pos = pos;
       b_vel = scale (float_of_int (speed_of_bullet Power)) tar;
-      b_accel = (0.,0.);
+      b_accel = a;
       b_radius = radius_of_bullet Power;
       b_color = c }]
 end
