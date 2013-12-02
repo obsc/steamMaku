@@ -64,8 +64,11 @@ let in_bounds (x, y) =
 
 let pi = acos (-1.)
 
-let deg_to_rad x = (180. *. x) /. pi
-let rad_to_deg x = (pi *. x) /. 180.
+let deg_of_rad x = (180. *. x) /. pi
+let rad_of_deg x = (pi *. x) /. 180.
+
+let deg_to_rad = rad_of_deg
+let rad_to_deg = deg_of_rad
 
 (* add_v v1 v2 returns the vector sum v1 + v2 *)
 let add_v (x1, y1) (x2, y2) = (x1 +. x2, y1 +. y2)
@@ -90,7 +93,7 @@ let rotate (x, y) theta =
   (x *. cost -. y *. sint, x *. sint +. y *. cost)
 
 (* Rotates a vector by theta degrees. But why would you use degrees? *)
-let rotate_deg (x,y) theta = rotate (x,y) (rad_to_deg theta)
+let rotate_deg (x,y) theta = rotate (x,y) (rad_of_deg theta)
 
 let scale s (x, y) =
   (s *. x, s *. y)
