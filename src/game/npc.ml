@@ -5,7 +5,10 @@ open Netgraphics
 
 type npctype = Simple
 type behavior = ufo ref -> unit
-type t = (ufo ref * behavior) list ref
+type time = int
+type t = {
+  mutable ufos : (ufo * behavior * time) list;
+}
 type cons = unit
 
 let () = Random.self_init ()
@@ -22,22 +25,23 @@ let get_start_pos (n : npctype) : position =
     let y : float = if top_or_bot = 0 then 0. else f_height in
     (x, y)
 
-let get_behavior (n : npctype) : (behavior * position) = 
+let get_behavior (n : npctype) : behavior = 
   match n with
   | Simple -> 
-    (* Generate first direction *)
-    let a = (Random.float f_width, Random.float f_height) in
-    let simple (u : ufo ref) : unit = 
-      let dest = ref a in
+    let simple (u : ufo) (time: int) : ufo = 
+      let n_vel = 
+        (* new destination *)
+        if time mod cUFO_MOVE_INTERVAL = 0 then 
+          unit_v (subt_v (Random.float f_width, Random.float f_height) u.u_pos)
+        (* keep old destination *)
+        else
+          u.u_vel in
       (* update ufo position *)
-      let n_pos = add_v (!u).u_pos !dest in
-      (* update position *)
-      dest := (Random.float f_width, Random.float f_height);
+      let n_pos = add_v u.u_pos n_vel in
       (* update ufo velocity *) 
-      u := { !u with u_pos = n_pos;
-        u_vel = scale f_speed (unit_v !dest)
-      } in
-    (simple, a)
+      add_update (MoveUFO (id, n_pos));
+      { u with u_pos = n_pos; u_vel = n_vel} in
+    simple
 
 let create (c : unit) : t = ref []
 
@@ -45,18 +49,17 @@ let spawn (n : npctype) (x : t) : unit =
   let id : id = next_available_id () in
   match n with
   | Simple -> let pos : position = get_start_pos n in
-              let bd = get_behavior n in
-              let b : behavior = fst bd in
-              let dest : position = snd bd in
+              let b : behavior = get_behavior n in
               let u : ufo = {
                 u_id = id;
                 u_pos = pos;
-                u_vel = scale f_speed (unit_v dest);
+                u_vel = unit_v (subt_v (Random.float f_width, Random.float f_height) pos);
                 u_radius = cUFO_RADIUS;
                 u_red_hits = 0;
                 u_blue_hits = 0 } in
-              x := (ref u, b)::(!x)
+              x.ufos <- (u, b, 1)::(x.ufos);
+              add_update (AddUFO (id, pos))
 
 let update (x : t) : unit = 
-  let update_one acc (u, b) = b u in
-  List.fold_left (update_one) () !x
+  let update_one acc (u, b, t) = acc@[(b u t, b, t + 1)] in
+  x.ufos <- List.fold_left (update_one) [] x.ufos
