@@ -156,6 +156,7 @@ let graze (x : t) : bool =
 let bomb (x : t) : bool =
   if x.bombs > 0 then begin
     setBombs x (x.bombs - 1);
+    add_update (UseBomb (x.color));
     x.status <- Bombing cBOMB_DURATION;
     true
   end else false
