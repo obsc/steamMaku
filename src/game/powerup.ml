@@ -5,6 +5,8 @@ open Projectile
 open Player
 
 module PowerUp : Collider = struct
+
+  (* Powerups should only apply to players *)
   let collide (p_col : color) (b_col : color) : bool = true
   let graze (p_col : color) (b_col : color) : bool = false
   let collideNpc (b_col : color) : bool = false
@@ -13,7 +15,10 @@ module PowerUp : Collider = struct
   let playerEvent (clear : unit -> unit) p enemy : bool =
     Player.gainPower p
 
+  (* Powerups cannot be grazed *)
   let grazeEvent (p : Player.t) : bool = false
+
+  (* NPCs are unaffected by powerups *)
   let npcEvent (n : Npc.t) (c : color) (id : id) : bool = false
 
   (* Spawns a powerup *)
