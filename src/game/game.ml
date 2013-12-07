@@ -12,6 +12,7 @@ type game = {
   powers : Powerup.t
 }
 
+(* Initializes the game *)
 let init_game () : game =
   let red = Player.create Red in
   let blue = Player.create Blue in
@@ -26,9 +27,11 @@ let init_game () : game =
     ufos = ufos;
     powers = powers }
 
+(* Determines whether the time is up *)
 let time_up game : bool =
   (float_of_int game.t) *. cUPDATE_TIME >= cTIME_LIMIT
 
+(* Gets the result of the game for the current time step*)
 let get_result game : result =
   let rLives : int = Player.getLives game.red in
   let bLives : int = Player.getLives game.blue in
@@ -44,11 +47,13 @@ let get_result game : result =
     end
   else Unfinished
 
+(* Determines if a ufo should be spawned and then spawns it *)
 let spawnUfo game : unit =
   if game.t mod cUFO_SPAWN_INTERVAL = 0 
   then Npc.spawn game.ufos
   else ()
 
+(* Handles a single time step *)
 let handle_time game =
   game.t <- game.t + 1;
   spawnUfo game;
@@ -64,11 +69,13 @@ let handle_time game =
   Bullet.updateClear game.bullets;
   (game, get_result game)
 
+(* Determines if a player can shoot a bullet, and then shoots it *)
 let shootBullet game p b_type pos acc : unit =
   if Player.reduceCharge p (cost_of_bullet b_type) then
   Bullet.spawn game.bullets (Player.getPos p) (Player.getColor p) b_type acc pos
   else ()
 
+(* Handles player input *)
 let handle_action game col act =
   let p : Player.t = match col with
     | Red  -> game.red
@@ -81,6 +88,7 @@ let handle_action game col act =
   end;
   game
 
+(* Gets the data for the game *)
 let get_data game =
   (Player.getData game.red, Player.getData game.blue,
     Npc.getData game.ufos, Bullet.getData game.bullets, [])
