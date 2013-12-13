@@ -21,6 +21,7 @@ module Bullet : Collider = struct
   (* Player grazes *)
   let grazeEvent (p : Player.t) : bool = Player.graze p
 
+  (* Bullet has hit an NPC *)
   let npcEvent (n : Npc.t) (c : color) (id : id) : bool = Npc.hit n id c
 
   (* Spawns a type of bullet *)
@@ -29,6 +30,7 @@ module Bullet : Collider = struct
     let radius = radius_of_bullet b_type in
     let tar = unit_v (subt_v target pos) in
     match b_type with
+    (* Bubble bullet only creates one *)
     | Bubble -> let b : bullet = {
                   b_type = Bubble;
                   b_id = next_available_id ();  
@@ -38,8 +40,8 @@ module Bullet : Collider = struct
                   b_radius = radius;
                   b_color = c } in
                 [b]
-
     | Spread -> 
+      (* determines the velocity vector for each bullet *)
       let angle_increment = rad_of_deg (360. /. float_of_int cSPREAD_NUM) in
       let rec num_to_spread acc i angle = 
         if i = 0 then acc
@@ -54,8 +56,8 @@ module Bullet : Collider = struct
             b_color = c } in
           num_to_spread (b::acc) (i-1) (rotate angle angle_increment) in
         num_to_spread [] cSPREAD_NUM tar
-
     | Trail  -> 
+      (* Creates three bullets, each in a different trail *)
       let rec trail_three speed acc i = 
         if i = -1 then acc
         else 
@@ -71,6 +73,8 @@ module Bullet : Collider = struct
             b_radius = radius;
             b_color = c } in
           trail_three speed (b::acc) (i-1) in
+
+      (* Calls trail_three for every bullet in a trail with increasing speeds *)
       let rec num_to_trail acc i = 
         if i = 0 then acc
         else 

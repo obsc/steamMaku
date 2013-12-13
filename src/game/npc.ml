@@ -26,10 +26,11 @@ let create (red, blue : cons) : t = { ufos = [];
                                       blue = blue;
                                       spawn = (fun a b c d e -> ()) }
 
+(* set the spawner that we use for powerups *)
 let setSpawn (x : t) (spawner : spawner) : unit = 
   x.spawn <- spawner
 
-(* xpos and ypos are the functions that determine an initial npc's location*)
+(* finding the spawn point of a new UFO *)
 let start_pos () : position =
   let top_or_bot : int = Random.int 2 in
   let x : float = (Random.float (0.5 *. f_width)) +. 0.25 *. f_width in
@@ -41,15 +42,14 @@ let start_pos () : position =
  *)
 let behavior (u : ufo) (time: int) : ufo = 
   let n_vel = 
-    (* new destination *)
+    (* set a new destination if necessary *)
     if time mod cUFO_MOVE_INTERVAL = 0 then
       unit_v (subt_v (Random.float f_width, Random.float f_height) u.u_pos)
     (* keep old destination *)
     else
       u.u_vel in
-  (* update ufo position *)
+  (* update ufo *)
   let n_pos = add_v u.u_pos n_vel in
-  (* update ufo velocity *) 
   add_update (MoveUFO (u.u_id, n_pos));
   { u with u_pos = n_pos; u_vel = n_vel }
 
@@ -94,12 +94,14 @@ let rec spawnPowerups (x : t) (num_red : int) (num_blue : int) (u : ufo): unit =
 (* The hit UFO updates *)
 let hit (x : t) (id : int) (shot_by : color) : bool =
   let hit_one acc (u, b, t) = 
+    (* Update the ufo getting hit *)
     let n_ufo = 
       if u.u_id = id then 
         match shot_by with
         | Red -> { u with u_red_hits = u.u_red_hits + 1}
         | Blue -> { u with u_blue_hits = u.u_blue_hits + 1}
       else u in
+    (* If it's dead, spawn the right number of powerups for each player *)
     if n_ufo.u_red_hits + n_ufo.u_blue_hits = cUFO_HITS then begin
       add_update (DeleteUFO id);
       let num_red = (n_ufo.u_red_hits * cUFO_POWER_NUM) / cUFO_HITS in
@@ -117,5 +119,6 @@ let getHitbox (x : t) : (id * hitbox) list =
     (u.u_id, (u.u_pos, float_of_int cUFO_RADIUS)) in
   List.map to_hitbox x.ufos
 
+(* Representation of the npc *)
 let getData (x : t) : ufo list =
   List.map (fun (n_ufo, b, t) -> n_ufo) x.ufos
