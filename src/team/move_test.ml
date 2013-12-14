@@ -94,8 +94,6 @@ let bot c =
   while true do
     let d = rand_direction () in
     let () = send_action (Move [d;d;d;d]) in
-    let () = if !count mod 10 = 0 then
-      send_action (Shoot (Spread, target_loc(), (target_accel()))) else () in
     let () = if !use_bomb then
       begin 
         send_action (Bomb);

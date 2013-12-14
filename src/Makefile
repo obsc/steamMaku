@@ -5,7 +5,7 @@
 # You may wish to modify these or add new ones
 
 default: all
-all: team/babybot.exe team/pusheen.exe game/game.exe
+all: team/babybot.exe team/pusheen.exe team/move_test.exe game/game.exe
 
 # Note: you should not need to run "make clean" every time you change something.
 # The "make" tool figures out what has changed and what needs to be rebuilt.
@@ -59,6 +59,11 @@ team/pusheen.exe:        \
 	shared/shared.cma \
 	team/team.cmo     \
 	team/pusheen.cmo
+
+team/move_test.exe: 	\
+	shared/shared.cma \
+	team/team.cmo     \
+	team/move_test.cmo 
 
 game/game.exe:           \
 	shared/shared.cma    \
